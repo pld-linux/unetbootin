@@ -1,0 +1,58 @@
+diff -ur 1.org/unetbootin.cpp 1/unetbootin.cpp
+--- 1.org/unetbootin.cpp	2017-07-14 10:54:12.000000000 +0200
++++ 1/unetbootin.cpp	2018-03-03 11:31:28.430440832 +0100
+@@ -258,6 +258,10 @@
+ 				dfcommand = "/bin/df";
+ 		else
+ 				dfcommand = locatecommand("df", tr("either"), "util-linux");
++	if (QFile::exists("/bin/udevadm"))
++	    udevadmcommand = "/bin/udevadm";
++	else
++	    udevadmcommand = locatecommand("udevadm", tr("either"), "silent");
+ 	if (QFile::exists("/sbin/sfdisk"))
+ 		sfdiskcommand = "/sbin/sfdisk";
+ 	else
+@@ -585,6 +589,14 @@
+ return matchinglist;
+ }
+ 
++bool unetbootin::is_usb(QFileInfo path)
++{
++    if (!udevadmcommand.isEmpty()) {
++	return QString(callexternapp(udevadmcommand, QString("info -q path %2").arg(path.canonicalFilePath()))).contains(QRegExp("/usb\\d+/"));
++    }
++    return false;
++}
++
+ QStringList unetbootin::listsanedrives()
+ {
+ 	QStringList fulldrivelist;
+@@ -617,7 +629,8 @@
+ //                        fulldrivelist.append(usbfileinfoL.at(i).canonicalFilePath());
+ //                    }
+                     if (usbfileinfoL.at(i).fileName().contains(QRegExp("^usb-\\S{1,}$")) ||
+-                        usbfileinfoL.at(i).fileName().contains(QRegExp("^mmc-\\S{1,}$")))
++                        usbfileinfoL.at(i).fileName().contains(QRegExp("^mmc-\\S{1,}$")) ||
++			is_usb(usbfileinfoL.at(i)))
+                     {
+ 						if (!volidcommand.isEmpty())
+ 						{
+diff -ur 1.org/unetbootin.h 1/unetbootin.h
+--- 1.org/unetbootin.h	2017-07-14 07:31:37.000000000 +0200
++++ 1/unetbootin.h	2018-03-03 11:27:22.499726441 +0100
+@@ -232,6 +232,7 @@
+ 	#ifdef Q_OS_UNIX
+ 	QString fdiskcommand;
+ 	QString sfdiskcommand;
++	QString udevadmcommand;
+ 	QString dfcommand;
+ 	QString blkidcommand;
+ 	QString volidcommand;
+@@ -302,6 +303,7 @@
+ 	QStringList matchinglist(QRegExp regex, QString text);
+ 	QStringList listsanedrives();
+ 	QStringList listalldrives();
++	bool is_usb(QFileInfo path);
+ 	void replaceTextInFile(QString repfilepath, QRegExp replaceme, QString replacewith);
+ 	QString fixkernelbootoptions(const QString &cfgfileCL);
+ 	void setLabel(QString devname, QString newlabel);

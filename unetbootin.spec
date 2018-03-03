@@ -7,7 +7,7 @@ Group:		Base
 URL:		https://unetbootin.github.io/
 Source0:	https://github.com/unetbootin/unetbootin/releases/download/%{version}/%{name}-source-%{version}.tar.gz
 # Source0-md5:	50ad69c1d703e635d30c3aa4305093f7
-# Syslinux is only available on x86 architectures
+Patch0:		usb.patch
 BuildRequires:	desktop-file-utils
 BuildRequires:	qt4-build
 Requires:	syslinux
@@ -23,6 +23,8 @@ distribution isn't on the list.
 
 %prep
 %setup -q -c
+%patch0 -p1
+
 sed -i '/^Version/d' unetbootin.desktop
 sed -i '/\[en_US\]/d' unetbootin.desktop
 sed -i 's|%{_bindir}/unetbootin|unetbootin|g' unetbootin.desktop
