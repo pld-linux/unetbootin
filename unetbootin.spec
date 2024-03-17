@@ -1,22 +1,23 @@
 Summary:	Create bootable Live USB drives for a variety of Linux distributions
 Summary(pl.UTF-8):	Tworzenie rozruchowych urządzeń Live USB dla różnych dystrybucji Linuksa
 Name:		unetbootin
-Version:	657
+Version:	702
 Release:	1
 License:	GPL v2+
 Group:		Base
+#Source0Download: https://github.com/unetbootin/unetbootin/releases
 Source0:	https://github.com/unetbootin/unetbootin/releases/download/%{version}/%{name}-source-%{version}.tar.gz
-# Source0-md5:	50ad69c1d703e635d30c3aa4305093f7
+# Source0-md5:	ee5c64a47817c4d897ccde91a6445b5d
 Patch0:		usb.patch
 URL:		https://unetbootin.github.io/
-BuildRequires:	QtCore-devel >= 4
-BuildRequires:	QtGui-devel >= 4
-BuildRequires:	QtNetwork-devel >= 4
+BuildRequires:	Qt5Core-devel >= 5.12
+BuildRequires:	Qt5Gui-devel >= 5.12
+BuildRequires:	Qt5Network-devel >= 5.12
 BuildRequires:	desktop-file-utils
 BuildRequires:	libstdc++-devel
-BuildRequires:	qt4-build >= 4
-BuildRequires:	qt4-linguist >= 4
-BuildRequires:	qt4-qmake >= 4
+BuildRequires:	qt5-build >= 5.12
+BuildRequires:	qt5-linguist >= 5.12
+BuildRequires:	qt5-qmake >= 5.12
 Requires:	syslinux
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -46,16 +47,16 @@ sed -i '/\[en_US\]/d' unetbootin.desktop
 sed -i 's|%{_bindir}/unetbootin|unetbootin|g' unetbootin.desktop
 
 %build
-export QTDIR=%{_prefix}/qt4
-lupdate-qt4 unetbootin.pro
-lrelease-qt4 unetbootin.pro
-qmake-qt4 \
+export QTDIR=%{_prefix}/qt5
+lupdate-qt5 unetbootin.pro
+lrelease-qt5 unetbootin.pro
+qmake-qt5 \
 	"DEFINES += NOSTATIC" \
 	"RESOURCES -= unetbootin.qrc"
 
 %{__make} \
-	CFLAGS="%{rpmcflags} %{rpmcppflags}" \
-	CXXFLAGS="%{rpmcxxflags}"
+	CXX="%{__cxx}" \
+	CXXFLAGS="%{rpmcxxflags} %{rpmcppflags} -fPIC"
 
 %install
 rm -rf $RPM_BUILD_ROOT
