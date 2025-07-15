@@ -40,7 +40,7 @@ liście.
 
 %prep
 %setup -q -c
-%patch0 -p1
+%patch -P0 -p1
 
 sed -i '/^Version/d' unetbootin.desktop
 sed -i '/\[en_US\]/d' unetbootin.desktop
